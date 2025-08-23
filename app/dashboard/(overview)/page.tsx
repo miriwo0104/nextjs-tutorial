@@ -2,13 +2,14 @@ import { Card } from '@/app/ui/dashboard/cards';
 import RevenueChart from '@/app/ui/dashboard/revenue-chart';
 import LatestInvoices from '@/app/ui/dashboard/latest-invoices';
 import { lusitana } from '@/app/ui/fonts';
-import { fetchRevenue, fetchLatestInvoices, fetchCardData } from '@/app/lib/data';
+import { fetchLatestInvoices, fetchCardData } from '@/app/lib/data';
+import { Suspense } from 'react';
+import { RevenueChartSkeleton } from '@/app/ui/skeletons';
 
 export default async function Page() {
   // NOTE: 下記は同期的に3メソッドが実行されて順番に情報を取得している
   // fetchLatestInvoicesの取得にfetchRevenueの結果が必要みたいな場合はむしろ同期的であるべき
   // ただし、並列ですべてのデータを取れたほうが効率的かも
-  const revenue = await fetchRevenue();
   const latestInvoices = await fetchLatestInvoices();
   const cardData = await fetchCardData();
   const totalPaidInvoices = cardData.totalPaidInvoices;
@@ -39,7 +40,9 @@ export default async function Page() {
         />}
       </div>
       <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-4 lg:grid-cols-8">
-        {<RevenueChart revenue={revenue}  />}
+        <Suspense fallback={<RevenueChartSkeleton />}>
+          <RevenueChart />
+        </Suspense>
         {<LatestInvoices latestInvoices={latestInvoices} />}
       </div>
     </main>
