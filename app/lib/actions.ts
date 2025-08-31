@@ -15,7 +15,9 @@ const FormSchema = z.object({ // ライブラリオブジェクトの作成
 });
 
 const CreateInvoice = FormSchema.omit({ id: true, date: true }); // INSERT時に設定不要カラムに紐づくプロパティを除外
+const UpdateInvoice = FormSchema.omit({ id: true, date: true }); // UPDATE時に設定不要カラムに紐づくプロパティを除外
 
+// INSERT
 export async function createInvoice(formData: FormData) {
   const { customerId, amount, status } = CreateInvoice.parse({ // 値チェックと型変換
     customerId: formData.get('customerId'),
@@ -28,6 +30,26 @@ export async function createInvoice(formData: FormData) {
   await sql`
     INSERT INTO invoices (customer_id, amount, status, date)
     VALUES (${customerId}, ${amountInCents}, ${status}, ${date})
+  `;
+
+  revalidatePath('/dashboard/invoices');
+  redirect('/dashboard/invoices');
+}
+
+// UPDATE
+export async function updateInvoice(id: string, formData: FormData) {
+  const { customerId, amount, status } = UpdateInvoice.parse({
+    customerId: formData.get('customerId'),
+    amount: formData.get('amount'),
+    status: formData.get('status'),
+  });
+
+  const amountInCents = amount * 100;
+
+  await sql`
+    UPDATE invoices
+    SET customer_id = ${customerId}, amount = ${amountInCents}, status = ${status}
+    WHERE id = ${id}
   `;
 
   revalidatePath('/dashboard/invoices');
