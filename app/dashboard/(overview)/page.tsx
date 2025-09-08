@@ -11,6 +11,12 @@ import {
   CardsSkeleton,
 } from '@/app/ui/skeletons';
 
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Dashboard'
+}
+
 export default async function Page() {
   // NOTE: 下記は同期的に3メソッドが実行されて順番に情報を取得している
   // fetchLatestInvoicesの取得にfetchRevenueの結果が必要みたいな場合はむしろ同期的であるべき
